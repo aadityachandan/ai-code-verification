@@ -1,13 +1,21 @@
 from google import genai
 from dotenv import load_dotenv
 import os
+import streamlit as st
 
-load_dotenv()   # 🔥 THIS IS REQUIRED
+load_dotenv()
+
+# 🔑 Get API key (works locally + cloud)
+api_key = os.getenv("GEMINI_API_KEY")
+
+if not api_key:
+    api_key = st.secrets["GEMINI_API_KEY"]
+
 
 class AIRepair:
 
     def __init__(self):
-        self.client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+        self.client = genai.Client(api_key=api_key)   # ✅ FIXED
 
     def generate_fix(self, code, issue):
         try:
