@@ -33,6 +33,7 @@
     b = a
     c = b
     eval(c)
+    ```
 
 ✔ Identifies `c` as user-controlled<br>✔ Flags `eval(c)` as **critical vulnerability**
  
