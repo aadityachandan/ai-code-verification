@@ -75,17 +75,37 @@ h1, h1 * {
 }
 
 /* ===== INPUT BOX ===== */
-textarea {
+div[data-baseweb="textarea"] {
     background-color: #020617 !important;
-    color: #e5e7eb !important;
     border-radius: 12px !important;
     border: 1px solid #1e293b !important;
-    box-shadow: 0 0 10px rgba(59,130,246,0.1);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.5) !important;
+    padding: 5px !important;
+    transition: all 0.3s ease-in-out !important;
+}
+
+div[data-baseweb="textarea"]:focus-within {
+    border-color: #22c55e !important;
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.4) !important;
+    outline: none !important;
+}
+
+div[data-baseweb="textarea"] * {
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+div[data-baseweb="textarea"] textarea {
+    background-color: #020617 !important;
+    color: #e5e7eb !important;
+    font-family: 'Courier New', monospace !important;
+    padding: 10px !important;
 }
 
 /* ===== BUTTON ===== */
 .stButton>button {
-    background: linear-gradient(90deg, #3b82f6, #6366f1);
+    background: linear-gradient(90deg, #01c1ba, #06d64d);
     color: white;
     border-radius: 12px;
     height: 3em;
@@ -97,7 +117,7 @@ textarea {
 
 .stButton>button:hover {
     transform: scale(1.02);
-    box-shadow: 0 0 12px rgba(99,102,241,0.5);
+    box-shadow: 0 0 12px rgba(6, 214, 77, 0.5);
 }
 
 /* ===== SECTION SPACING ===== */
@@ -153,14 +173,32 @@ st.divider()
 st.info("Paste Python code and click Analyze to detect bugs and vulnerabilities")
 
 # INPUT
-st.subheader("Input Code")
+st.markdown("""
+<div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px; border-bottom: 1px solid #1e293b; padding-bottom: 15px;">
+    <div style="background: linear-gradient(90deg, #3b82f6, #6366f1); padding: 6px 12px; border-radius: 8px; color: white; font-weight: 800; font-family: 'Courier New', monospace; font-size: 16px; box-shadow: 0 0 12px rgba(99,102,241,0.6);">
+        &lt;/&gt;
+    </div>
+    <h3 style="color: #f8fafc; font-weight: 600; margin: 0; font-size: 22px; letter-spacing: 0.5px;">Input Source Code</h3>
+</div>
+""", unsafe_allow_html=True)
 
-code = st.text_area("Paste your Python code here", height=300)
+code = st.text_area("hidden_label", placeholder="Paste your Python code here...", height=320, label_visibility="collapsed")
+
+error_placeholder = st.empty()
 
 run = st.button("Analyze Code")
 
 # ANALYSIS
-if run and code.strip():
+if run:
+    if not code.strip():
+        st.markdown("""<style>
+        div[data-baseweb="textarea"] {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.6) !important;
+        }
+        </style>""", unsafe_allow_html=True)
+        error_placeholder.error("Please paste some code before running the analysis.")
+        st.stop()
 
     with st.spinner("Analyzing code..."):
         data = analyze_code(code)
