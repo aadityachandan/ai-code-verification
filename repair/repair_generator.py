@@ -119,20 +119,35 @@ class RepairGenerator:
         issue_type = issue["type"]
 
         severity_map = {
-            "EvalTainted": "HIGH",
-            "ExecUsage": "HIGH",
-            "OSCommand": "HIGH",
-            "HardcodedSecret": "HIGH",
-            "MongoURI": "HIGH",
+    # 🔴 CRITICAL / HIGH SECURITY (tainted)
+    "EvalTainted": "CRITICAL",
+    "ExecTainted": "CRITICAL",
+    "CommandInjection": "CRITICAL",
+    "UnsafeDeserialization": "CRITICAL",
+    "SQLInjection": "CRITICAL",
+    "PathTraversal": "CRITICAL",
 
-            "DivisionByZero": "MEDIUM",
-            "NoneComparison": "LOW",
-            "InfiniteLoop": "MEDIUM",
-            "IndexOutOfBounds": "MEDIUM",
-            "EmptyExcept": "MEDIUM",
-            "BroadException": "MEDIUM",
-            "EvalUserInput": "HIGH",
-        }
+    # ⚠️ HIGH RISK (non-tainted but dangerous)
+    "EvalUsage": "HIGH",
+    "ExecUsage": "HIGH",
+    "OSCommand": "HIGH",
+    "SQLInjectionRisk": "HIGH",
+    "PathTraversalRisk": "HIGH",
+    "UnsafeDeserializationRisk": "HIGH",
+
+    # 🔐 Secrets
+    "HardcodedSecret": "HIGH",
+    "MongoURI": "HIGH",
+
+    # 🐞 Bugs
+    "DivisionByZero": "MEDIUM",
+    "IndexOutOfBounds": "MEDIUM",
+    "InfiniteLoop": "MEDIUM",
+    "EmptyExcept": "MEDIUM",
+    "BroadException": "MEDIUM",
+
+    "NoneComparison": "LOW"
+}
             # 🔥 NEW: Confidence calculation (simple logic)
         confidence_map = {
         "EvalUsage": 95,

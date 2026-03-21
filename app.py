@@ -7,6 +7,7 @@ from detectors.security_detector import SecurityDetector
 from repair.repair_generator import RepairGenerator
 from verifier.patch_verifier import PatchVerifier
 from repair.ai_repair import AIRepair
+from utils.scorer import calculate_score
 
 
 
@@ -50,16 +51,17 @@ def analyze_code(code):
         # Store original issues (for score BEFORE fix)
         original_results.append({
             "issue": issue,
-            "severity": fix_data["severity"]
+            "severity": fix_data["severity"],
+            "confidence": issue.get("confidence", 50)
         })
 
         # Store issue + fix (for display)
         results.append({
         "issue": issue,
         "fix": fix_data["fix"],
-         "severity": fix_data["severity"],
-         "confidence": fix_data["confidence"],
-         "ai_suggestion": ai_suggestion
+        "severity": fix_data["severity"],
+        "confidence": issue.get("confidence", 50),
+        "ai_suggestion": ai_suggestion
           
 })
 
@@ -89,12 +91,13 @@ def analyze_code(code):
             fixed_results.append({
                 "issue": issue,
                 "severity": fix_data["severity"],
+                "confidence": issue.get("confidence", 50)
                 
             })
 
     # 🔴 Calculate scores
-    original_score = calculate_score(original_results)
-    fixed_score = calculate_score(fixed_results)
+    original_score = calculate_score(original_results) 
+    fixed_score = calculate_score(fixed_results) 
 
     # 🔴 Final return
     return {
@@ -132,22 +135,6 @@ def read_file(file_path):
         return file.read()
 
 
-# 🔷 Score calculation
-def calculate_score(results):
-    score = 10
-
-    for r in results:
-        if "severity" not in r:
-            continue
-
-        if r["severity"] == "HIGH":
-            score -= 3
-        elif r["severity"] == "MEDIUM":
-            score -= 2
-        elif r["severity"] == "LOW":
-            score -= 1
-
-    return max(score, 0)
 
 
 # 🔷 MAIN ENTRY
