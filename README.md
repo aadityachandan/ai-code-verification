@@ -1,39 +1,40 @@
-    # 🚀 AI Code Verification & Automated Repair System
+# 🚀 AI Code Verification & Automated Repair System
     
-    <p align="center">
-      <b>🔍 Detect • 🧠 Analyze • 🛠️ Repair • 🛡️ Secure Python Code</b><br>
-      <i>AST-based static analysis with taint tracking and intelligent fixing</i>
-    </p>
+<p align="center">
+<b>🔍 Detect • 🧠 Analyze • 🛠️ Repair • 🛡️ Secure Python Code</b><br>
+<i>AST-based static analysis with taint tracking and intelligent fixing</i>
+</p>
     
-    ---
+---
     
-    ## 📌 Overview
+## 📌 Overview
     
-    The **AI Code Verification & Automated Repair System** is a security-focused static analysis tool that detects **bugs, vulnerabilities, and unsafe coding patterns** in Python programs.
+The **AI Code Verification & Automated Repair System** is a security-focused static analysis tool that detects **bugs, vulnerabilities, and unsafe coding patterns** in Python programs.
     
-    Unlike traditional linters, this system performs **taint analysis**, allowing it to track how user input flows through code and identify real-world security threats.
+ Unlike traditional linters, this system performs **taint analysis**, allowing it to track how user input flows through code and identify real-world security threats.
     
-    ---
+---
     
-    ## 🧠 Key Features
+## 🧠 Key Features
     
-    ### 🔍 AST-Based Analysis
-    - Uses Python Abstract Syntax Tree (AST)
-    - No code execution → **safe by design**
-    - Deep structural code understanding
+### 🔍 AST-Based Analysis
+- Uses Python Abstract Syntax Tree (AST)
+- No code execution → **safe by design**
+- Deep structural code understanding
     
-    ---
+---
     
-    ### 🔥 Taint Analysis (Core Innovation)
+### 🔥 Taint Analysis (Core Innovation)
     
-    Tracks unsafe data flow from **source → propagation → sink**
+Tracks unsafe data flow from **source → propagation → sink**
     
-    ```python
-    a = input()
-    b = a
-    c = b
-    eval(c)
-    ```
+```python
+a = input()
+b = a
+c = b
+eval(c)
+```
+    
 
 ✔ Identifies `c` as user-controlled<br>✔ Flags `eval(c)` as **critical vulnerability**
  
