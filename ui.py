@@ -52,7 +52,7 @@ h1, h1 * {
     margin-top: -1.5rem !important;
     display: block !important;
     padding-bottom: 5px !important;
-    background: linear-gradient(90deg, #5227FF, #FF9FFC, #B19EEF, #5227FF) !important;
+    background-image: linear-gradient(90deg, #5227FF, #FF9FFC, #B19EEF, #5227FF) !important;
     background-size: 200% auto !important;
     color: transparent !important;
     -webkit-background-clip: text !important;
