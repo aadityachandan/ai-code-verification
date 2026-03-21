@@ -2,22 +2,21 @@ import streamlit as st
 from app import analyze_code
 from repair.ai_repair import AIRepair
 
-# 🔥 PAGE CONFIG (FULL WIDTH)
+# PAGE CONFIG (FULL WIDTH)
 st.set_page_config(
     page_title="AI Code Repair",
-    page_icon="🔍",
     layout="wide"
 )
 st.markdown("""
 <style>
 
-/* ❌ REMOVE STREAMLIT HEADER */
+/* REMOVE STREAMLIT HEADER */
 header {visibility: hidden;}
 
-/* ❌ REMOVE HAMBURGER MENU */
+/* REMOVE HAMBURGER MENU */
 #MainMenu {visibility: hidden;}
 
-/* ❌ REMOVE FOOTER */
+/* REMOVE FOOTER */
 footer {visibility: hidden;}
 
 /* OPTIONAL: REMOVE DEPLOY BUTTON SPACE */
@@ -28,7 +27,7 @@ footer {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
 
-# 🔥 PREMIUM DARK UI CSS
+# PREMIUM DARK UI CSS
 st.markdown("""
 <style>
 
@@ -46,9 +45,25 @@ st.markdown("""
 }
 
 /* ===== TITLE ===== */
-h1 {
-    text-align: center;
-    color: #60a5fa;
+h1, h1 * {
+    font-size: 5rem !important;
+    font-weight: 800 !important;
+    text-align: center !important;
+    margin-top: -1.5rem !important;
+    display: block !important;
+    padding-bottom: 5px !important;
+    background: linear-gradient(90deg, #5227FF, #FF9FFC, #B19EEF, #5227FF) !important;
+    background-size: 200% auto !important;
+    color: transparent !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    animation: gradientFlow 4s linear infinite;
+}
+
+@keyframes gradientFlow {
+    to {
+        background-position: 200% center;
+    }
 }
 
 /* ===== SUBTITLE ===== */
@@ -128,26 +143,26 @@ hr {
 </style>
 """, unsafe_allow_html=True)
 
-# 🔥 HEADER
-st.title("🔍 AI Code Verification & Repair")
+# HEADER
+st.title("AI Code Verification & Repair")
 st.markdown('<div class="subtitle">Detect • Fix • Secure AI-generated code</div>', unsafe_allow_html=True)
 
 st.divider()
 
-# 🔥 SMALL UX IMPROVEMENT
-st.info("💡 Paste Python code and click Analyze to detect bugs and vulnerabilities")
+# SMALL UX IMPROVEMENT
+st.info("Paste Python code and click Analyze to detect bugs and vulnerabilities")
 
-# 🔥 INPUT
-st.subheader("📝 Input Code")
+# INPUT
+st.subheader("Input Code")
 
 code = st.text_area("Paste your Python code here", height=300)
 
-run = st.button("🚀 Analyze Code")
+run = st.button("Analyze Code")
 
-# 🔥 ANALYSIS
+# ANALYSIS
 if run and code.strip():
 
-    with st.spinner("Analyzing code... 🔍"):
+    with st.spinner("Analyzing code..."):
         data = analyze_code(code)
 
     if "error" in data:
@@ -155,29 +170,29 @@ if run and code.strip():
     else:
         st.divider()
 
-        # 🚨 ISSUES
-        st.subheader("🚨 Issues Detected")
+        # ISSUES
+        st.subheader("Issues Detected")
 
         for issue in data["issues"]:
             sev = issue["severity"]
 
             if sev == "HIGH":
-                st.error(f"{issue['issue']['type']} → {issue['issue']['message']}")
+                st.error(f"{issue['issue']['type']} -> {issue['issue']['message']}")
             elif sev == "MEDIUM":
-                st.warning(f"{issue['issue']['type']} → {issue['issue']['message']}")
+                st.warning(f"{issue['issue']['type']} -> {issue['issue']['message']}")
             else:
-                st.info(f"{issue['issue']['type']} → {issue['issue']['message']}")
+                st.info(f"{issue['issue']['type']} -> {issue['issue']['message']}")
 
-            st.write("🔧 Fix:", issue["fix"])
-            st.write("📊 Confidence:", issue.get("confidence", "N/A"), "%")
+            st.write("Fix:", issue["fix"])
+            st.write("Confidence:", issue.get("confidence", "N/A"), "%")
 
-            # 🤖 OPTIONAL AI FIX
+            # OPTIONAL AI FIX
             try:
                 ai = AIRepair()
                 ai_suggestion = ai.generate_fix(code, issue)
 
                 if ai_suggestion:
-                    st.success("🤖 AI Suggestion:")
+                    st.success("AI Suggestion:")
                     st.write(ai_suggestion)
                 else:
                     st.info("AI suggestion not available")
@@ -187,12 +202,12 @@ if run and code.strip():
 
             st.write("---")
 
-        # 🔧 FIXED CODE
-        st.subheader("🔧 Fixed Code")
+        # FIXED CODE
+        st.subheader("Fixed Code")
         st.code(data["fixed_code"], language="python")
 
-        # 📊 SCORE
-        st.subheader("📊 Score Dashboard")
+        # SCORE
+        st.subheader("Score Dashboard")
 
         col1, col2, col3 = st.columns(3)
 
@@ -200,7 +215,7 @@ if run and code.strip():
         col2.metric("Fixed Score", data["fixed_score"])
         col3.metric("Improvement", data["fixed_score"] - data["original_score"])
 
-        # ✅ VALIDATION
-        st.subheader("✅ Verification")
+        # VALIDATION
+        st.subheader("Verification")
         st.success(data["syntax_check"])
         st.info(data["validation"])
