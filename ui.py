@@ -2,22 +2,21 @@ import streamlit as st
 from app import analyze_code
 from repair.ai_repair import AIRepair
 
-# 🔥 PAGE CONFIG (FULL WIDTH)
+# PAGE CONFIG (FULL WIDTH)
 st.set_page_config(
     page_title="AI Code Repair",
-    page_icon="🔍",
     layout="wide"
 )
 st.markdown("""
 <style>
 
-/* ❌ REMOVE STREAMLIT HEADER */
+/* REMOVE STREAMLIT HEADER */
 header {visibility: hidden;}
 
-/* ❌ REMOVE HAMBURGER MENU */
+/* REMOVE HAMBURGER MENU */
 #MainMenu {visibility: hidden;}
 
-/* ❌ REMOVE FOOTER */
+/* REMOVE FOOTER */
 footer {visibility: hidden;}
 
 /* OPTIONAL: REMOVE DEPLOY BUTTON SPACE */
@@ -28,7 +27,7 @@ footer {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
 
-# 🔥 PREMIUM DARK UI CSS
+# PREMIUM DARK UI CSS
 st.markdown("""
 <style>
 
@@ -46,9 +45,25 @@ st.markdown("""
 }
 
 /* ===== TITLE ===== */
-h1 {
-    text-align: center;
-    color: #60a5fa;
+h1, h1 * {
+    font-size: 5rem !important;
+    font-weight: 800 !important;
+    text-align: center !important;
+    margin-top: -1.5rem !important;
+    display: block !important;
+    padding-bottom: 5px !important;
+    background: linear-gradient(90deg, #5227FF, #FF9FFC, #B19EEF, #5227FF) !important;
+    background-size: 200% auto !important;
+    color: transparent !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    animation: gradientFlow 4s linear infinite;
+}
+
+@keyframes gradientFlow {
+    to {
+        background-position: 200% center;
+    }
 }
 
 /* ===== SUBTITLE ===== */
@@ -60,17 +75,37 @@ h1 {
 }
 
 /* ===== INPUT BOX ===== */
-textarea {
+div[data-baseweb="textarea"] {
     background-color: #020617 !important;
-    color: #e5e7eb !important;
     border-radius: 12px !important;
     border: 1px solid #1e293b !important;
-    box-shadow: 0 0 10px rgba(59,130,246,0.1);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.5) !important;
+    padding: 5px !important;
+    transition: all 0.3s ease-in-out !important;
+}
+
+div[data-baseweb="textarea"]:focus-within {
+    border-color: #22c55e !important;
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.4) !important;
+    outline: none !important;
+}
+
+div[data-baseweb="textarea"] * {
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+div[data-baseweb="textarea"] textarea {
+    background-color: #020617 !important;
+    color: #e5e7eb !important;
+    font-family: 'Courier New', monospace !important;
+    padding: 10px !important;
 }
 
 /* ===== BUTTON ===== */
 .stButton>button {
-    background: linear-gradient(90deg, #3b82f6, #6366f1);
+    background: linear-gradient(90deg, #01c1ba, #06d64d);
     color: white;
     border-radius: 12px;
     height: 3em;
@@ -82,7 +117,7 @@ textarea {
 
 .stButton>button:hover {
     transform: scale(1.02);
-    box-shadow: 0 0 12px rgba(99,102,241,0.5);
+    box-shadow: 0 0 12px rgba(6, 214, 77, 0.5);
 }
 
 /* ===== SECTION SPACING ===== */
@@ -128,26 +163,44 @@ hr {
 </style>
 """, unsafe_allow_html=True)
 
-# 🔥 HEADER
-st.title("🔍 AI Code Verification & Repair")
+# HEADER
+st.title("AI Code Verification & Repair")
 st.markdown('<div class="subtitle">Detect • Fix • Secure AI-generated code</div>', unsafe_allow_html=True)
 
 st.divider()
 
-# 🔥 SMALL UX IMPROVEMENT
-st.info("💡 Paste Python code and click Analyze to detect bugs and vulnerabilities")
+# SMALL UX IMPROVEMENT
+st.info("Paste Python code and click Analyze to detect bugs and vulnerabilities")
 
-# 🔥 INPUT
-st.subheader("📝 Input Code")
+# INPUT
+st.markdown("""
+<div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px; border-bottom: 1px solid #1e293b; padding-bottom: 15px;">
+    <div style="background: linear-gradient(90deg, #3b82f6, #6366f1); padding: 6px 12px; border-radius: 8px; color: white; font-weight: 800; font-family: 'Courier New', monospace; font-size: 16px; box-shadow: 0 0 12px rgba(99,102,241,0.6);">
+        &lt;/&gt;
+    </div>
+    <h3 style="color: #f8fafc; font-weight: 600; margin: 0; font-size: 22px; letter-spacing: 0.5px;">Input Source Code</h3>
+</div>
+""", unsafe_allow_html=True)
 
-code = st.text_area("Paste your Python code here", height=300)
+code = st.text_area("hidden_label", placeholder="Paste your Python code here...", height=320, label_visibility="collapsed")
 
-run = st.button("🚀 Analyze Code")
+error_placeholder = st.empty()
 
-# 🔥 ANALYSIS
-if run and code.strip():
+run = st.button("Analyze Code")
 
-    with st.spinner("Analyzing code... 🔍"):
+# ANALYSIS
+if run:
+    if not code.strip():
+        st.markdown("""<style>
+        div[data-baseweb="textarea"] {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.6) !important;
+        }
+        </style>""", unsafe_allow_html=True)
+        error_placeholder.error("Please paste some code before running the analysis.")
+        st.stop()
+
+    with st.spinner("Analyzing code..."):
         data = analyze_code(code)
 
     if "error" in data:
@@ -155,29 +208,29 @@ if run and code.strip():
     else:
         st.divider()
 
-        # 🚨 ISSUES
-        st.subheader("🚨 Issues Detected")
+        # ISSUES
+        st.subheader("Issues Detected")
 
         for issue in data["issues"]:
             sev = issue["severity"]
 
             if sev == "HIGH":
-                st.error(f"{issue['issue']['type']} → {issue['issue']['message']}")
+                st.error(f"{issue['issue']['type']} -> {issue['issue']['message']}")
             elif sev == "MEDIUM":
-                st.warning(f"{issue['issue']['type']} → {issue['issue']['message']}")
+                st.warning(f"{issue['issue']['type']} -> {issue['issue']['message']}")
             else:
-                st.info(f"{issue['issue']['type']} → {issue['issue']['message']}")
+                st.info(f"{issue['issue']['type']} -> {issue['issue']['message']}")
 
-            st.write("🔧 Fix:", issue["fix"])
-            st.write("📊 Confidence:", issue.get("confidence", "N/A"), "%")
+            st.write("Fix:", issue["fix"])
+            st.write("Confidence:", issue.get("confidence", "N/A"), "%")
 
-            # 🤖 OPTIONAL AI FIX
+            # OPTIONAL AI FIX
             try:
                 ai = AIRepair()
                 ai_suggestion = ai.generate_fix(code, issue)
 
                 if ai_suggestion:
-                    st.success("🤖 AI Suggestion:")
+                    st.success("AI Suggestion:")
                     st.write(ai_suggestion)
                 else:
                     st.info("AI suggestion not available")
@@ -187,12 +240,12 @@ if run and code.strip():
 
             st.write("---")
 
-        # 🔧 FIXED CODE
-        st.subheader("🔧 Fixed Code")
+        # FIXED CODE
+        st.subheader("Fixed Code")
         st.code(data["fixed_code"], language="python")
 
-        # 📊 SCORE
-        st.subheader("📊 Score Dashboard")
+        # SCORE
+        st.subheader("Score Dashboard")
 
         col1, col2, col3 = st.columns(3)
 
@@ -200,7 +253,7 @@ if run and code.strip():
         col2.metric("Fixed Score", data["fixed_score"])
         col3.metric("Improvement", data["fixed_score"] - data["original_score"])
 
-        # ✅ VALIDATION
-        st.subheader("✅ Verification")
+        # VALIDATION
+        st.subheader("Verification")
         st.success(data["syntax_check"])
         st.info(data["validation"])
