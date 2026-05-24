@@ -227,11 +227,6 @@ Built using **Streamlit**
 ---
  
 
-## 👨‍💻 Author
- 
-**Aaditya Chandan**
- 
----
  
 
 ## ⭐ Support
