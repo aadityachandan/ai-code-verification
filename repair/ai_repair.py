@@ -5,7 +5,7 @@ import streamlit as st
 
 load_dotenv()
 
-# 🔑 Get API key (works locally + cloud)
+# Get API key
 api_key = os.getenv("GEMINI_API_KEY")
 
 if not api_key:
@@ -15,11 +15,11 @@ if not api_key:
 class AIRepair:
 
     def __init__(self):
-        self.client = genai.Client(api_key=api_key)   # ✅ FIXED
+        self.client = genai.Client(api_key=api_key)
 
     def generate_fix(self, code, issue):
-        try:
-            prompt = f"""
+
+        prompt = f"""
 You are a secure Python code repair assistant.
 
 Fix the issue in the code.
@@ -35,12 +35,13 @@ Return:
 2. Short explanation
 """
 
+        try:
             response = self.client.models.generate_content(
-                model="gemma-3-4b-it",
+                model="gemini-1.5-flash",
                 contents=prompt
             )
 
             return response.text
 
         except Exception as e:
-            return f"AI suggestion unavailable ({str(e)})"
+            return f"AI suggestion unavailable: {str(e)}"
