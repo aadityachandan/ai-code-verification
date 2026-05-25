@@ -173,13 +173,13 @@ Built using **Streamlit**
 
 ---
  
-
 ## ⚙️ Installation
- 
 
-    git clone https://github.com/your-username/ai-code-verification-system.git
-    cd ai-code-verification-system
-    pip install -r requirements.txt
+```bash
+git clone https://github.com/aadityachandan/ai-code-verification.git
+cd ai-code-verification
+pip install -r requirements.txt
+```
 
 ---
  
@@ -227,7 +227,7 @@ Built using **Streamlit**
 ---
  
 
- 
+
 
 ## ⭐ Support
  

@@ -7,19 +7,77 @@ class SecurityDetector(ast.NodeVisitor):
         self.issues = []
         self.tainted_vars = set()
         self.functions = {}
+        # Track functions that return tainted data
+        self.function_returns_tainted = {}
+        #WHICH FUNCTIONS ARE RETURNING TRAINT VALUES
 
+        self.safe_functions = {
+    "int",
+    "float",
+    "str",
+    "bool",
+    "ast.literal_eval",
+    "escape",
+    "quote"
+}
+
+        # Prevent duplicate function analysis
+        self.visited_contexts = set()
+
+        # Prevent duplicate issues
+        self.seen_issues = set()
     # -------------------------
     # 🔥 CLEAN ISSUE ADDER
     # -------------------------
     def add_issue(self, issue):
-        self.issues.append(issue)
 
-    # -------------------------
-    # 🔥 FUNCTION TRACKING
-    # -------------------------
+        key = (
+            issue["type"],
+            issue["line"]
+        )
+
+        if key not in self.seen_issues:
+            self.issues.append(issue)
+            self.seen_issues.add(key)
+        # -------------------------
+        # 🔥 FUNCTION TRACKING
+        # -------------------------
     def visit_FunctionDef(self, node):
+
+        # Store function
         self.functions[node.name] = node
 
+        # ---------------------------------
+        # STATIC LIGHTWEIGHT ANALYSIS
+        # ---------------------------------
+
+        old_taint = self.tainted_vars.copy()
+
+        # Conservatively assume parameters
+        # may be tainted
+        
+
+        # Analyze function body
+        for stmt in node.body:
+            self.visit(stmt)
+
+        # ---------------------------------
+        # CHECK IF FUNCTION RETURNS TAINTED DATA
+        # ---------------------------------
+
+        returns_tainted = False
+
+        for stmt in ast.walk(node):
+
+            if isinstance(stmt, ast.Return):
+
+                if stmt.value and self.is_expr_tainted(stmt.value):
+                    returns_tainted = True
+
+        # Store function summary
+        self.function_returns_tainted[node.name] = returns_tainted
+        # Restore taint state
+        self.tainted_vars = old_taint
     # -------------------------
     # 🔥 DEPTH CALCULATION
     # -------------------------
@@ -57,8 +115,42 @@ class SecurityDetector(ast.NodeVisitor):
             )
 
         if isinstance(node, ast.Call):
-            return any(self.is_expr_tainted(arg) for arg in node.args)
 
+            # ---------------------------------
+            # input() is direct taint source
+            # ---------------------------------
+
+            if isinstance(node.func, ast.Name):
+                if node.func.id == "input":
+                    return True
+
+            # ---------------------------------
+            # Get function name
+            # ---------------------------------
+
+            func_name = None
+
+            if isinstance(node.func, ast.Name):
+                func_name = node.func.id
+
+            elif isinstance(node.func, ast.Attribute):
+                func_name = f"{ast.unparse(node.func.value)}.{node.func.attr}"
+
+            # ---------------------------------
+            # Sanitizers
+            # ---------------------------------
+
+            if func_name in self.safe_functions:
+                return False
+
+            # ---------------------------------
+            # ONLY taint if function RETURNS tainted data
+            # ---------------------------------
+
+            if func_name in self.function_returns_tainted:
+                return self.function_returns_tainted[func_name]
+
+            return False
         if isinstance(node, ast.JoinedStr):
             for value in node.values:
                 if isinstance(value, ast.FormattedValue):
@@ -72,26 +164,8 @@ class SecurityDetector(ast.NodeVisitor):
     # -------------------------
     def visit_Call(self, node):
 
-        # 🔥 FUNCTION TAINT PROPAGATION
-        if isinstance(node.func, ast.Name):
-            func_name = node.func.id
 
-            if func_name in self.functions:
-                func_def = self.functions[func_name]
-
-                for i, arg in enumerate(node.args):
-                    if i < len(func_def.args.args):
-                        param_name = func_def.args.args[i].arg
-
-                        if self.is_expr_tainted(arg):
-                            self.tainted_vars.add(param_name)
-
-                            for stmt in func_def.body:
-                                self.visit(stmt)
-
-                            self.tainted_vars.remove(param_name)
-
-                return
+            
 
         # 🔴 eval()
         if isinstance(node.func, ast.Name) and node.func.id == "eval":
@@ -239,6 +313,49 @@ class SecurityDetector(ast.NodeVisitor):
 
         self.generic_visit(node)
 
+        # 🔥 FUNCTION TAINT PROPAGATION
+        # 🔥 FUNCTION PARAMETER TAINT PROPAGATION
+        if isinstance(node.func, ast.Name):
+
+            func_name = node.func.id
+
+            if func_name in self.functions:
+
+                func_def = self.functions[func_name]
+
+                # -----------------------------
+                # Build analysis context
+                # -----------------------------
+                context_key = (
+                    func_name,
+                    tuple(sorted(self.tainted_vars))
+                )
+
+                # Prevent duplicate analysis
+                if context_key in self.visited_contexts:
+                    return
+
+                self.visited_contexts.add(context_key)
+
+                # Save old taint state
+                old_taint = self.tainted_vars.copy()
+
+                # Inject tainted parameters
+                for i, arg in enumerate(node.args):
+
+                    if i < len(func_def.args.args):
+
+                        param_name = func_def.args.args[i].arg
+
+                        if self.is_expr_tainted(arg):
+                            self.tainted_vars.add(param_name)
+
+                # Analyze function body
+                for stmt in func_def.body:
+                    self.visit(stmt)
+
+                # Restore taint state
+                self.tainted_vars = old_taint
     # -------------------------
     # 🔥 TAINT SOURCE + PROPAGATION
     # -------------------------
@@ -254,6 +371,25 @@ class SecurityDetector(ast.NodeVisitor):
             for target in node.targets:
                 if isinstance(target, ast.Name):
                     self.tainted_vars.add(target.id)
+
+        # ---------------------------------
+        # FUNCTION RETURN TAINT PROPAGATION
+        # ---------------------------------
+
+        if isinstance(node.value, ast.Call):
+
+            if isinstance(node.value.func, ast.Name):
+
+                func_name = node.value.func.id
+
+                # Function returns tainted data
+                if self.function_returns_tainted.get(func_name):
+
+                    for target in node.targets:
+
+                        if isinstance(target, ast.Name):
+
+                            self.tainted_vars.add(target.id)
 
         # 🔐 Hardcoded secrets
         if isinstance(node.value, ast.Constant):

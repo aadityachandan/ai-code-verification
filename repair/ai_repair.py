@@ -36,7 +36,7 @@ Return:
 """
 
             response = self.client.models.generate_content(
-                model="gemini-2.5-flash",
+                model="gemma-3-4b-it",
                 contents=prompt
             )
 
